@@ -1,0 +1,7 @@
+#!name=ChatGPT 解锁与降智检测
+#!desc=在 Loon 首页一键测试当前选中的节点是否原生支持 ChatGPT，有无被风控或降智。
+#!icon=https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/ChatGPT.png
+
+[Script]
+# 调用社区维护的 OpenAI 状态检测脚本
+generic script-path=https://raw.githubusercontent.com/chxm1023/Loon/main/Script/ChatGPT.js, tag=ChatGPT 状态检测, img-url=https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/ChatGPT.png

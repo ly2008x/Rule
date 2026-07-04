@@ -1,8 +1,7 @@
 #!name=今日头条去广告
 #!desc=修复了匹配层级冲突，去除了断网黑图地雷，精准拦截广告及高危追踪。
 #!author=Eric
-#!icon=https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Apple_News.png
-
+#!icon=https://raw.githubusercontent.com/luestr/IconResource/main/Website_icon/120px/ByteDanceAd.png
 [Rule]
 
 # ======================================================

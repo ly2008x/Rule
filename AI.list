@@ -1,0 +1,85 @@
+# =========================================
+# AI 服务域名规则集 (Gemini / Claude / ChatGPT)
+# 供 Loon [Remote Rule] 引用，policy 由引用行的 policy= 参数统一指定
+# =========================================
+
+# -----------------------------------------
+# 1. Gemini & Google AI
+# -----------------------------------------
+DOMAIN-SUFFIX,gemini.google.com
+DOMAIN-SUFFIX,generativelanguage.googleapis.com
+DOMAIN-SUFFIX,aistudio.google.com
+DOMAIN-SUFFIX,makersuite.google.com
+DOMAIN-SUFFIX,deepmind.com
+DOMAIN-SUFFIX,deepmind.google
+DOMAIN-SUFFIX,google.dev
+DOMAIN-SUFFIX,google.com
+DOMAIN-SUFFIX,googleapis.com
+DOMAIN-SUFFIX,gstatic.com
+DOMAIN-SUFFIX,googleusercontent.com
+# 以下三条来自你的旧 Egern 配置(疑似实测抓包所得)，不在 google.com/googleapis.com 后缀覆盖范围内，单独补上
+DOMAIN-SUFFIX,firebaseapp.com
+DOMAIN-SUFFIX,firebasedatabase.app
+DOMAIN-SUFFIX,app-measurement.com
+
+# -----------------------------------------
+# 2. Claude & Anthropic
+# 【可信度说明】不像下面 OpenAI 部分有官方验证过的社区清单，这部分是根据
+# Anthropic 官方 GitHub issue 确认信息 + 已知产品域名拼出来的，没有同等权威的第三方核实
+# -----------------------------------------
+DOMAIN-SUFFIX,claude.ai
+DOMAIN-SUFFIX,claude.com
+DOMAIN-SUFFIX,anthropic.com
+# 错误监控 / 功能开关服务，来自 Anthropic 官方 GitHub issue 中工程师明确确认过的域名
+DOMAIN-SUFFIX,statsig.com
+DOMAIN-SUFFIX,sentry.io
+# 前端监控与静态资源 (防白屏)
+DOMAIN-SUFFIX,cdn.usefathom.com
+# 客服对话组件 (较常见的 SaaS 客服工具，未逐一验证 Claude 官网是否使用)
+DOMAIN-SUFFIX,intercom.io
+DOMAIN-SUFFIX,intercomcdn.com
+# 支付相关 (如不订阅 Claude Pro 可自行删除下面这行)
+DOMAIN-SUFFIX,stripe.com
+# Artifacts 渲染 / Claude-in-Chrome 桥接用的独立域名 (已通过两个独立信源核实存在)
+DOMAIN-SUFFIX,claudeusercontent.com
+
+# -----------------------------------------
+# 3. ChatGPT & OpenAI
+# 【可信度说明】以下内容取自 blackmatrix7/ios_rule_script 仓库的官方 OpenAI.list
+# (截取自某次抓取，非自动跟随更新，以后如遇异常需自行补充)
+# -----------------------------------------
+DOMAIN,browser-intake-datadoghq.com
+DOMAIN,chat.openai.com.cdn.cloudflare.net
+DOMAIN,openai-api.arkoselabs.com
+DOMAIN,openaicom-api-bdcpf8c6d2e9atf6.z01.azurefd.net
+DOMAIN,openaicomproductionae4b.blob.core.windows.net
+DOMAIN,production-openaicom-storage.azureedge.net
+DOMAIN,static.cloudflareinsights.com
+DOMAIN-SUFFIX,ai.com
+DOMAIN-SUFFIX,algolia.net
+DOMAIN-SUFFIX,api.statsig.com
+DOMAIN-SUFFIX,auth0.com
+DOMAIN-SUFFIX,chatgpt.com
+DOMAIN-SUFFIX,chatgpt.livekit.cloud
+DOMAIN-SUFFIX,client-api.arkoselabs.com
+DOMAIN-SUFFIX,events.statsigapi.net
+DOMAIN-SUFFIX,featuregates.org
+DOMAIN-SUFFIX,host.livekit.cloud
+DOMAIN-SUFFIX,identrust.com
+DOMAIN-SUFFIX,launchdarkly.com
+DOMAIN-SUFFIX,oaistatic.com
+DOMAIN-SUFFIX,oaiusercontent.com
+DOMAIN-SUFFIX,observeit.net
+DOMAIN-SUFFIX,openai.com
+DOMAIN-SUFFIX,openaiapi-site.azureedge.net
+DOMAIN-SUFFIX,openaicom.imgix.net
+DOMAIN-SUFFIX,segment.io
+DOMAIN-SUFFIX,turn.livekit.cloud
+DOMAIN-KEYWORD,openai
+
+# -----------------------------------------
+# 4. 共用：人机验证 / 异常登录挑战
+# 三家都可能用到 Cloudflare Turnstile，关键补漏，避免验证环节走直连暴露真实IP
+# -----------------------------------------
+DOMAIN-SUFFIX,challenges.cloudflare.com
+

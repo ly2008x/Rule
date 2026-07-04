@@ -1,120 +1,70 @@
-#!name=今日头条 (极简净化版 + 秋风补充)
-#!desc=纯域名层拦截，覆盖穿山甲广告链路、行为追踪、P2P CDN，无 MITM 无 UDP 干扰
+#!name=今日头条去广告
+#!desc=修复了匹配层级冲突，去除了断网黑图地雷，精准拦截广告及高危追踪。
 #!author=Eric
+#!icon=https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Apple_News.png
 
 [Rule]
+
 # ======================================================
-# 1. 穿山甲 / GroMore 广告主链路
+# 🔴 ① AI广告识别核心层（精准匹配，不被截胡）
 # ======================================================
 DOMAIN-KEYWORD,pangolin,REJECT
-DOMAIN-SUFFIX,pglstatp-toutiao.com,REJECT
 DOMAIN-SUFFIX,gromore.cn,REJECT
-DOMAIN-SUFFIX,gromore.pangolin-sdk-toutiao.com,REJECT
+
 DOMAIN-SUFFIX,ad.snssdk.com,REJECT
 DOMAIN-SUFFIX,ad.toutiao.com,REJECT
 DOMAIN-SUFFIX,dsp.toutiao.com,REJECT
 DOMAIN-SUFFIX,adshare.toutiao.com,REJECT
-DOMAIN-SUFFIX,monsetting.toutiao.com,REJECT
+DOMAIN-SUFFIX,ad.oceanengine.com,REJECT
+
 DOMAIN-SUFFIX,api-access.pangolin-sdk-toutiao.com,REJECT
-DOMAIN-SUFFIX,api-access.pangolin-sdk-toutiao-b.com,REJECT
-DOMAIN-SUFFIX,api-access.pangolin-sdk-toutiao1.com,REJECT
-DOMAIN-SUFFIX,api-access.pangolin-sdk-toutiao2.com,REJECT
-DOMAIN-SUFFIX,api-access.pangolin-sdk-toutiao3.com,REJECT
-DOMAIN-SUFFIX,api-access.pangolin-sdk-toutiao4.com,REJECT
-DOMAIN-SUFFIX,api-access.pangolin-sdk-toutiao5.com,REJECT
-DOMAIN-SUFFIX,pangolin-sdk-toutiao-b.com,REJECT
-DOMAIN-SUFFIX,log-api.pangolin-sdk-toutiao.com,REJECT
-DOMAIN-SUFFIX,log-api.pangolin-sdk-toutiao-b.com,REJECT
-DOMAIN-SUFFIX,lf3-ad-union-sdk.pglstatp-toutiao.com,REJECT
-DOMAIN-SUFFIX,lf6-ad-union-sdk.pglstatp-toutiao.com,REJECT
-DOMAIN-SUFFIX,p1-be-pack-sign.pglstatp-toutiao.com,REJECT
-DOMAIN-SUFFIX,p2-be-pack-sign.pglstatp-toutiao.com,REJECT
-DOMAIN-SUFFIX,p3-be-pack-sign.pglstatp-toutiao.com,REJECT
-DOMAIN-SUFFIX,p4-be-pack-sign.pglstatp-toutiao.com,REJECT
-DOMAIN-SUFFIX,p5-be-pack-sign.pglstatp-toutiao.com,REJECT
-DOMAIN-SUFFIX,p6-be-pack-sign.pglstatp-toutiao.com,REJECT
-DOMAIN-SUFFIX,sf3-fe-tos.pglstatp-toutiao.com,REJECT
-DOMAIN-SUFFIX,sf16-static.i18n-pglstatp.com,REJECT
+DOMAIN-SUFFIX,api-access.pangolin-sdk.com,REJECT
 
-# ======================================================
-# 2. 字节系广告素材 & API
-# ======================================================
-DOMAIN-SUFFIX,ad.zijieapi.com,REJECT
-DOMAIN-KEYWORD,ad-sign.byteimg.com,REJECT
-DOMAIN-KEYWORD,asiad.byteactivity,REJECT
-DOMAIN-SUFFIX,dm.pstatp.com,REJECT
 DOMAIN-SUFFIX,lf-ad-ies.bytecdn.cn,REJECT
-DOMAIN-SUFFIX,p3-tt.byteimg.com,REJECT
-DOMAIN-SUFFIX,ads3-normal.zijieapi.com,REJECT
-DOMAIN-SUFFIX,ads3-normal-hl.zijieapi.com,REJECT
-DOMAIN-SUFFIX,ads3-normal-lf.zijieapi.com,REJECT
-DOMAIN-SUFFIX,ads3-normal-lq.zijieapi.com,REJECT
-DOMAIN-SUFFIX,ads5-normal.zijieapi.com,REJECT
-DOMAIN-SUFFIX,ads5-normal-hl.zijieapi.com,REJECT
-DOMAIN-SUFFIX,ads5-normal-lf.zijieapi.com,REJECT
-DOMAIN-SUFFIX,ads5-normal-lq.zijieapi.com,REJECT
-DOMAIN-SUFFIX,analytics.oceanengine.com,REJECT
+DOMAIN-SUFFIX,lf-ad-union.byteimg.com,REJECT
+DOMAIN-SUFFIX,ad-sign.byteimg.com,REJECT
+
+DOMAIN-SUFFIX,ads.tiktokcdn.com,REJECT
+
 
 # ======================================================
-# 3. 行为日志 & 数据追踪
+# 🟠 ② 伪内容广告识别层（剔除了会导致刷新报错的高危项）
 # ======================================================
-DOMAIN-SUFFIX,track.toutiao.com,REJECT
-DOMAIN-SUFFIX,partner.toutiao.com,REJECT
+DOMAIN-SUFFIX,rp.snssdk.com,REJECT
+DOMAIN-SUFFIX,ichannel.snssdk.com,REJECT
+
+
+# ======================================================
+# 🟡 ③ 行为AI建模层（轻量化拦截高危追踪）
+# ======================================================
 DOMAIN-SUFFIX,log.snssdk.com,REJECT
+DOMAIN-SUFFIX,applog.zijieapi.com,REJECT
+DOMAIN-SUFFIX,event.snssdk.com,REJECT
+DOMAIN-SUFFIX,rtlog.snssdk.com,REJECT
 DOMAIN-SUFFIX,extlog.snssdk.com,REJECT
 DOMAIN-SUFFIX,toblog.snssdk.com,REJECT
-DOMAIN-SUFFIX,toblog.ctobsnssdk.com,REJECT
-DOMAIN-SUFFIX,success.ctobsnssdk.com,REJECT
-DOMAIN-SUFFIX,mon.snssdk.com,REJECT
-DOMAIN-SUFFIX,analytics.snssdk.com,REJECT
 DOMAIN-SUFFIX,abtest-ch.snssdk.com,REJECT
-DOMAIN-SUFFIX,mon.zijieapi.com,REJECT
-DOMAIN-SUFFIX,log.zijieapi.com,REJECT
-DOMAIN-SUFFIX,applog.zijieapi.com,REJECT
-DOMAIN-SUFFIX,mcs.zijieapi.com,REJECT
-DOMAIN-SUFFIX,mssdk.zijieapi.com,REJECT
-DOMAIN-SUFFIX,mon.toutiao.com,REJECT
-DOMAIN-SUFFIX,mon.toutiaocloud.com,REJECT
-DOMAIN-SUFFIX,mon.toutiaocloud.net,REJECT
-DOMAIN-SUFFIX,dm.toutiao.com,REJECT
-DOMAIN-SUFFIX,dm.bytedance.com,REJECT
-DOMAIN-SUFFIX,mssdk.bytedance.com,REJECT
-DOMAIN-SUFFIX,mssdk.volces.com,REJECT
-DOMAIN-SUFFIX,klink.volceapplog.com,REJECT
+DOMAIN-SUFFIX,security.snssdk.com,REJECT
+
 
 # ======================================================
-# 4. P2P CDN（显式拦截，防止隐性超时导致卡顿）
+# 🟢 ④ P2P & 直播流AI限制层（避免后台偷跑流量卡顿）
 # ======================================================
 DOMAIN-SUFFIX,xycdn.com,REJECT
 DOMAIN-SUFFIX,kuiniuca.com,REJECT
+DOMAIN-SUFFIX,edge-hls.net,REJECT
+
 
 # ======================================================
-# 5. 第三方电商推广跳转
-# ======================================================
-DOMAIN-SUFFIX,tunion-api.m.taobao.com,REJECT
-DOMAIN-SUFFIX,suning.com,REJECT
-
-# ======================================================
-# 6. P2P CDN
+# 🟢 ⑤ 调度系统轻封锁（阻断备用防劫持解析）
 # ======================================================
 DOMAIN-SUFFIX,tnc3-aliec1.toutiaoapi.com,REJECT
-DOMAIN-SUFFIX,tnc3-aliec2.bytedance.com,REJECT
-DOMAIN-SUFFIX,tnc3-aliec2.snssdk.com,REJECT
-DOMAIN-SUFFIX,tnc3-aliec2.toutiaoapi.com,REJECT
 DOMAIN-SUFFIX,tnc3-alisc1.bytedance.com,REJECT
-DOMAIN-SUFFIX,tnc3-alisc1.snssdk.com,REJECT
-DOMAIN-SUFFIX,tnc3-alisc1.toutiaoapi.com,REJECT
-DOMAIN-SUFFIX,tnc3-bjlgy.bytedance.com,REJECT
-DOMAIN-SUFFIX,tnc3-bjlgy.snssdk.com,REJECT
-DOMAIN-SUFFIX,tnc3-bjlgy.toutiaoapi.com,REJECT
-DOMAIN-SUFFIX,tnc0-bjlgy.zijieapi.com,REJECT
+DOMAIN-SUFFIX,bsync.bytedance.com,REJECT
+
 
 # ======================================================
-# 7. ixigua 相关
+# 🟢 ⑥ 电商广告清理（防误触跳转）
 # ======================================================
-DOMAIN-SUFFIX,search.ixigua.com,REJECT
-DOMAIN-SUFFIX,search3-search.ixigua.com,REJECT
-DOMAIN-SUFFIX,search5-search.ixigua.com,REJECT
-DOMAIN-SUFFIX,search5-search-hl.ixigua.com,REJECT
-DOMAIN-SUFFIX,api5-normal-quic-lf.ixigua.com,REJECT
-
+DOMAIN-SUFFIX,tunion-api.m.taobao.com,REJECT
+DOMAIN-SUFFIX,adredir.tmall.com,REJECT

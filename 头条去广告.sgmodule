@@ -1,0 +1,48 @@
+#!name=今日头条去广告
+#!desc=修复了匹配层级冲突，去除了断网黑图地雷，精准拦截广告及高危追踪。
+#!author=Eric
+#!icon=https://raw.githubusercontent.com/luestr/IconResource/main/Website_icon/120px/ByteDanceAd.png
+
+[Rule]
+# ① AI广告识别核心层（精准匹配，不被截胡）
+DOMAIN-KEYWORD,pangolin,REJECT
+DOMAIN-SUFFIX,gromore.cn,REJECT
+DOMAIN-SUFFIX,ad.snssdk.com,REJECT
+DOMAIN-SUFFIX,ad.toutiao.com,REJECT
+DOMAIN-SUFFIX,dsp.toutiao.com,REJECT
+DOMAIN-SUFFIX,adshare.toutiao.com,REJECT
+DOMAIN-SUFFIX,ad.oceanengine.com,REJECT
+DOMAIN-SUFFIX,api-access.pangolin-sdk-toutiao.com,REJECT
+DOMAIN-SUFFIX,api-access.pangolin-sdk.com,REJECT
+DOMAIN-SUFFIX,lf-ad-ies.bytecdn.cn,REJECT
+DOMAIN-SUFFIX,lf-ad-union.byteimg.com,REJECT
+DOMAIN-SUFFIX,ad-sign.byteimg.com,REJECT
+DOMAIN-SUFFIX,ads.tiktokcdn.com,REJECT
+
+# ② 伪内容广告识别层（剔除了会导致刷新报错的高危项）
+DOMAIN-SUFFIX,rp.snssdk.com,REJECT
+DOMAIN-SUFFIX,ichannel.snssdk.com,REJECT
+
+# ③ 行为建模层（轻量化拦截高危追踪）
+DOMAIN-SUFFIX,log.snssdk.com,REJECT
+DOMAIN-SUFFIX,applog.zijieapi.com,REJECT
+DOMAIN-SUFFIX,event.snssdk.com,REJECT
+DOMAIN-SUFFIX,rtlog.snssdk.com,REJECT
+DOMAIN-SUFFIX,extlog.snssdk.com,REJECT
+DOMAIN-SUFFIX,toblog.snssdk.com,REJECT
+DOMAIN-SUFFIX,abtest-ch.snssdk.com,REJECT
+DOMAIN-SUFFIX,security.snssdk.com,REJECT
+
+# ④ P2P & 直播流限制层（避免后台偷跑流量卡顿）
+DOMAIN-SUFFIX,xycdn.com,REJECT
+DOMAIN-SUFFIX,kuiniuca.com,REJECT
+DOMAIN-SUFFIX,edge-hls.net,REJECT
+
+# ⑤ 调度系统轻封锁（阻断备用防劫持解析）
+DOMAIN-SUFFIX,tnc3-aliec1.toutiaoapi.com,REJECT
+DOMAIN-SUFFIX,tnc3-alisc1.bytedance.com,REJECT
+DOMAIN-SUFFIX,bsync.bytedance.com,REJECT
+
+# ⑥ 电商广告清理（防误触跳转）
+DOMAIN-SUFFIX,tunion-api.m.taobao.com,REJECT
+DOMAIN-SUFFIX,adredir.tmall.com,REJECT

@@ -1,0 +1,164 @@
+#!name=今日头条去广告
+#!desc=修复了匹配层级冲突，去除了断网黑图地雷，精准拦截广告及高危追踪。补充穿山甲/联盟、字节日志SDK、调度节点、西瓜搜索、图床等域名。已对开屏广告接口节点开启MITM解密。新增直播/直播带货全屏蔽（含douyincdn.com/bytegecko.com，若装有抖音会一并受影响）。
+#!author=Eric
+#!icon=https://raw.githubusercontent.com/luestr/IconResource/main/Website_icon/120px/ByteDanceAd.png
+[Rule]
+# ======================================================
+# 🔴 ① AI广告识别核心层（精准匹配，不被截胡）
+# ======================================================
+DOMAIN-KEYWORD,pangolin,REJECT
+DOMAIN-SUFFIX,gromore.cn,REJECT
+DOMAIN-SUFFIX,ad.snssdk.com,REJECT
+DOMAIN-SUFFIX,ad.toutiao.com,REJECT
+DOMAIN-SUFFIX,dsp.toutiao.com,REJECT
+DOMAIN-SUFFIX,adshare.toutiao.com,REJECT
+DOMAIN-SUFFIX,ad.oceanengine.com,REJECT
+DOMAIN-SUFFIX,api-access.pangolin-sdk-toutiao.com,REJECT
+DOMAIN-SUFFIX,api-access.pangolin-sdk.com,REJECT
+DOMAIN-SUFFIX,lf-ad-ies.bytecdn.cn,REJECT
+DOMAIN-SUFFIX,lf-ad-union.byteimg.com,REJECT
+DOMAIN-SUFFIX,ad-sign.byteimg.com,REJECT
+DOMAIN-SUFFIX,ads.tiktokcdn.com,REJECT
+# ======================================================
+# 🔴 ①-补充 开屏广告库存接口（配合下方MITM解密后生效更彻底）
+# ======================================================
+URL-REGEX,^https:\/\/api[0-9]*-normal-lq\.toutiaoapi\.com\/api\/ad\/v1\/splash\/stock\/,REJECT
+# ======================================================
+# 🔴 ①-补充2 穿山甲/联盟相关（AWAvenue 规则集比对新增）
+# ======================================================
+DOMAIN-SUFFIX,gromore.pangolin-sdk-toutiao.com,REJECT
+DOMAIN-SUFFIX,pangolin-sdk-toutiao-b.com,REJECT
+DOMAIN-SUFFIX,api-access.pangolin-sdk-toutiao1.com,REJECT
+DOMAIN-SUFFIX,api-access.pangolin-sdk-toutiao2.com,REJECT
+DOMAIN-SUFFIX,api-access.pangolin-sdk-toutiao3.com,REJECT
+DOMAIN-SUFFIX,api-access.pangolin-sdk-toutiao4.com,REJECT
+DOMAIN-SUFFIX,api-access.pangolin-sdk-toutiao5.com,REJECT
+DOMAIN-SUFFIX,api-access.pangolin-sdk-toutiao-b.com,REJECT
+DOMAIN-SUFFIX,log-api.pangolin-sdk-toutiao.com,REJECT
+DOMAIN-SUFFIX,log-api.pangolin-sdk-toutiao-b.com,REJECT
+DOMAIN-SUFFIX,pglstatp-toutiao.com,REJECT
+DOMAIN-SUFFIX,lf3-ad-union-sdk.pglstatp-toutiao.com,REJECT
+DOMAIN-SUFFIX,lf6-ad-union-sdk.pglstatp-toutiao.com,REJECT
+DOMAIN-SUFFIX,sf3-fe-tos.pglstatp-toutiao.com,REJECT
+DOMAIN-SUFFIX,sf16-static.i18n-pglstatp.com,REJECT
+DOMAIN-SUFFIX,dm.toutiao.com,REJECT
+DOMAIN-SUFFIX,monsetting.toutiao.com,REJECT
+DOMAIN-SUFFIX,analytics.oceanengine.com,REJECT
+# ======================================================
+# 🟠 ② 伪内容广告识别层（剔除了会导致刷新报错的高危项）
+# ======================================================
+DOMAIN-SUFFIX,rp.snssdk.com,REJECT
+DOMAIN-SUFFIX,ichannel.snssdk.com,REJECT
+# ======================================================
+# 🟠 ②-补充 广告点击跳转接口（拦截后广告点了没反应，卡片本身仍会显示）
+# ======================================================
+DOMAIN,clue.oceanengine.com,REJECT
+# ======================================================
+# 🟡 ③ 行为AI建模层（轻量化拦截高危追踪）
+# ======================================================
+DOMAIN-SUFFIX,log.snssdk.com,REJECT
+DOMAIN-SUFFIX,applog.zijieapi.com,REJECT
+DOMAIN-SUFFIX,event.snssdk.com,REJECT
+DOMAIN-SUFFIX,rtlog.snssdk.com,REJECT
+DOMAIN-SUFFIX,extlog.snssdk.com,REJECT
+DOMAIN-SUFFIX,toblog.snssdk.com,REJECT
+DOMAIN-SUFFIX,abtest-ch.snssdk.com,REJECT
+DOMAIN-SUFFIX,security.snssdk.com,REJECT
+# ======================================================
+# 🟡 ③-补充 本次抓包新发现的日志/监控上报（toutiaoapi.com根域）
+# ======================================================
+DOMAIN-KEYWORD,applog-lq.toutiaoapi.com,REJECT
+DOMAIN-KEYWORD,misc-lq.toutiaoapi.com,REJECT
+# ======================================================
+# 🟡 ③-补充2 字节日志/追踪 SDK（AWAvenue 规则集比对新增）
+# ======================================================
+DOMAIN-SUFFIX,log.zijieapi.com,REJECT
+DOMAIN-SUFFIX,mssdk.zijieapi.com,REJECT
+DOMAIN-SUFFIX,tnc0-bjlgy.zijieapi.com,REJECT
+DOMAIN-SUFFIX,mssdk.volces.com,REJECT
+DOMAIN-SUFFIX,klink.volceapplog.com,REJECT
+DOMAIN-SUFFIX,log.byteoversea.com,REJECT
+DOMAIN-SUFFIX,toblog.ctobsnssdk.com,REJECT
+DOMAIN-SUFFIX,success.ctobsnssdk.com,REJECT
+# ======================================================
+# 🟢 ④ P2P & 直播流AI限制层（避免后台偷跑流量卡顿）
+# ======================================================
+DOMAIN-SUFFIX,xycdn.com,REJECT
+DOMAIN-SUFFIX,kuiniuca.com,REJECT
+DOMAIN-SUFFIX,edge-hls.net,REJECT
+# ======================================================
+# 🟢 ⑤ 调度系统轻封锁（阻断备用防劫持解析）
+# ======================================================
+DOMAIN-SUFFIX,tnc3-aliec1.toutiaoapi.com,REJECT
+DOMAIN-SUFFIX,tnc3-alisc1.bytedance.com,REJECT
+DOMAIN-SUFFIX,bsync.bytedance.com,REJECT
+# ======================================================
+# 🟢 ⑤-补充 其他备用调度节点（AWAvenue 规则集比对新增）
+# ======================================================
+DOMAIN-SUFFIX,tnc3-aliec2.bytedance.com,REJECT
+DOMAIN-SUFFIX,tnc3-aliec2.snssdk.com,REJECT
+DOMAIN-SUFFIX,tnc3-aliec2.toutiaoapi.com,REJECT
+DOMAIN-SUFFIX,tnc3-alisc1.snssdk.com,REJECT
+DOMAIN-SUFFIX,tnc3-alisc1.toutiaoapi.com,REJECT
+DOMAIN-SUFFIX,tnc3-bjlgy.bytedance.com,REJECT
+DOMAIN-SUFFIX,tnc3-bjlgy.snssdk.com,REJECT
+DOMAIN-SUFFIX,tnc3-bjlgy.toutiaoapi.com,REJECT
+# ======================================================
+# 🟢 ⑥ 电商广告清理（防误触跳转）
+# ======================================================
+DOMAIN-SUFFIX,tunion-api.m.taobao.com,REJECT
+DOMAIN-SUFFIX,adredir.tmall.com,REJECT
+# ======================================================
+# 🔵 ⑦ 西瓜视频搜索/广告（如不使用头条内嵌西瓜视频搜索功能可保留；若使用后发现搜索异常可注释掉此段）
+# ======================================================
+DOMAIN-SUFFIX,search.ixigua.com,REJECT
+DOMAIN-SUFFIX,search3-search.ixigua.com,REJECT
+DOMAIN-SUFFIX,search5-search.ixigua.com,REJECT
+DOMAIN-SUFFIX,search5-search-hl.ixigua.com,REJECT
+DOMAIN-SUFFIX,api5-normal-quic-lf.ixigua.com,REJECT
+# ======================================================
+# 🟣 ⑧ 图床资源（风险较低，但同域名下可能混有正文配图，加入后请重点观察 feed 图片是否缺失）
+# ======================================================
+DOMAIN-SUFFIX,p3-tt.byteimg.com,REJECT
+# ======================================================
+# ⚫ ⑨ 字节跳动通用广告接口（来自奶思合集「字节跳动/番茄小说」板块，与头条共用 pangolin/snssdk/pglstatp-toutiao 广告 SDK）
+# 注意：这几条依赖 URL 路径匹配，必须配合下方 [MITM] 的 snssdk.com / pglstatp-toutiao.com / pangolin-sdk-toutiao.com / amemv.com 才会生效
+# ======================================================
+URL-REGEX,^https?:\/\/.+\.(amemv|musical|snssdk|tiktokv)\.com\/(api|motor)\/ad\/,REJECT
+URL-REGEX,^https?:\/\/.+\.snssdk\.com\/motor\/operation\/activity\/display\/config\/V2\/,REJECT
+URL-REGEX,^https?:\/\/[\w-]+\.amemv\.com\/aweme\/v\d\/ad\/,REJECT
+URL-REGEX,^https?:\/\/[\w-]+\.snssdk\.com\/.+_ad\/,REJECT
+URL-REGEX,^https?:\/\/.+\.pangolin-sdk-toutiao\.com\/api\/ad\/union\/sdk\/(get_ads|stats|settings)\/,REJECT
+URL-REGEX,^https?:\/\/.+\.(pglstatp-toutiao|pstatp)\.com\/(obj|img)\/(ad-app-package|ad)\/.+,REJECT
+URL-REGEX,^https?:\/\/.+\.(pglstatp-toutiao|pstatp)\.com\/(obj|img)\/web\.business\.image\/.+,REJECT
+# ======================================================
+# 🔶 ⑩ 直播屏蔽（本次抓包确认为头条内嵌抖音式直播间，全屏蔽后直播完全打不开，纯图文/短视频不受影响）
+# ======================================================
+DOMAIN,webcast100-ws-open-lq.douyin.com,REJECT
+DOMAIN-SUFFIX,douyincdn.com,REJECT
+DOMAIN-SUFFIX,bytegecko.com,REJECT
+DOMAIN,lf6-webcastcdn-tos.douyinstatic.com,REJECT
+DOMAIN,p3-webcast.douyinpic.com,REJECT
+DOMAIN,p3-webcast-sign.douyinpic.com,REJECT
+DOMAIN-SUFFIX,byteeffecttos.com,REJECT
+# ======================================================
+# 🔶 ⑩-补充 直播带货/放心购电商（连带屏蔽直播间购物车、商品浮窗）
+# ======================================================
+DOMAIN,lf3-ecom-toc.jinritemai.com,REJECT
+DOMAIN,lf6-cm.ecombdstatic.com,REJECT
+DOMAIN-SUFFIX,ecombdimg.com,REJECT
+DOMAIN-SUFFIX,ecombdapi.com,REJECT
+DOMAIN,life-service-open.scsjsd.com,REJECT
+DOMAIN,life-service-open.zijieapi.com,REJECT
+[Rewrite]
+# > 今日头条图片原图（来自奶思合集，省流量向，非强广告拦截）
+# hostname = p*.pstatp.com
+request if ${url} ~= /^https?:\/\/p\d\.pstatp\.com\/origin/ then reject(404)
+request if ${url} ~= /^https?:\/\/pb\d\.pstatp\.com\/origin/ then reject(404)
+[MITM]
+# 通配符覆盖所有编号的开屏广告接口节点（api1/api2/api3...-normal-lq），
+# 避免头条更换负载均衡节点后需要手动补充hostname。
+# 目前仅用于抓包分析JSON结构，尚未配合Rewrite做内容级过滤。
+# 下方额外域名是为了让 ⑨ 字节跳动通用广告接口规则（URL-REGEX）能够生效——
+# 这些规则依赖 URL 路径匹配，不解密对应域名规则不会触发。
+hostname = api*-normal-lq.toutiaoapi.com, *.snssdk.com, *.amemv.com, *.musical.com, *.tiktokv.com, *.pglstatp-toutiao.com, *.pstatp.com, *.pangolin-sdk-toutiao.com

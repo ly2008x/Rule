@@ -30,6 +30,11 @@ URL-REGEX,^https:\/\/api[0-9]*-normal-lq\.toutiaoapi\.com\/api\/ad\/v1\/splash\/
 # ======================================================
 URL-REGEX,^https:\/\/api[0-9]*-normal-lq\.toutiaoapi\.com\/api\/ad\/splash\/news_article\/v\d+\/,REJECT
 # ======================================================
+# 🔴 ①-补充4 开屏广告展示回执上报（2026-09-22 抓包新发现：/api/ad/v2/ack/splash/，
+# 展示后才触发，不影响广告是否显示，但会把本次曝光数据回传字节，顺手一并拦掉）
+# ======================================================
+DOMAIN-KEYWORD,ad/v2/ack/splash,REJECT
+# ======================================================
 # 🔴 ①-补充2 穿山甲/联盟相关（AWAvenue 规则集比对新增）
 # ======================================================
 DOMAIN-SUFFIX,gromore.pangolin-sdk-toutiao.com,REJECT
@@ -87,6 +92,11 @@ DOMAIN-SUFFIX,log.byteoversea.com,REJECT
 DOMAIN-SUFFIX,toblog.ctobsnssdk.com,REJECT
 DOMAIN-SUFFIX,success.ctobsnssdk.com,REJECT
 # ======================================================
+# 🟡 ③-补充3 多地域埋点日志节点（i-hl/i-bj/i-sz等，实际抓包中反复出现MITM握手失败——
+# 该类域名做了证书锁定，注定无法被解密，与其每次陪它走一遍必败的TLS握手，不如直接前置拒绝）
+# ======================================================
+DOMAIN-WILDCARD,i-*.snssdk.com,REJECT
+# ======================================================
 # 🟢 ④ P2P & 直播流AI限制层（避免后台偷跑流量卡顿）
 # ======================================================
 DOMAIN-SUFFIX,xycdn.com,REJECT
@@ -128,9 +138,9 @@ DOMAIN-SUFFIX,api5-normal-quic-lf.ixigua.com,REJECT
 DOMAIN-SUFFIX,p3-tt.byteimg.com,REJECT
 # ======================================================
 # ⚫ ⑨ 字节跳动通用广告接口（来自奶思合集「字节跳动/番茄小说」板块，与头条共用 pangolin/snssdk/pglstatp-toutiao 广告 SDK）
-# 注意：这几条依赖 URL 路径匹配，必须配合下方 [MITM] 的 snssdk.com / pglstatp-toutiao.com / pangolin-sdk-toutiao.com / amemv.com 才会生效
+# 注意：这几条依赖 URL 路径匹配，必须配合下方 [MITM] 的 snssdk.com / pglstatp-toutiao.com / pangolin-sdk-toutiao.com / amemv.com / musical.ly 才会生效
 # ======================================================
-URL-REGEX,^https?:\/\/.+\.(amemv|musical|snssdk|tiktokv)\.com\/(api|motor)\/ad\/,REJECT
+URL-REGEX,^https?:\/\/.+\.(amemv|musical\.ly|snssdk|tiktokv)\.com\/(api|motor)\/ad\/,REJECT
 URL-REGEX,^https?:\/\/.+\.snssdk\.com\/motor\/operation\/activity\/display\/config\/V2\/,REJECT
 URL-REGEX,^https?:\/\/[\w-]+\.amemv\.com\/aweme\/v\d\/ad\/,REJECT
 URL-REGEX,^https?:\/\/[\w-]+\.snssdk\.com\/.+_ad\/,REJECT
@@ -164,7 +174,7 @@ request if ${url} ~= /^https?:\/\/pb\d\.pstatp\.com\/origin/ then reject(404)
 [MITM]
 # 通配符覆盖所有编号的开屏广告接口节点（api1/api2/api3...-normal-lq），
 # 避免头条更换负载均衡节点后需要手动补充hostname。
-# 该域名下同时承载「①-补充」库存接口和「①-补充3」实际投放接口，二者共用同一个MITM hostname。
+# 该域名下同时承载「①-补充」库存接口、「①-补充3」实际投放接口、「①-补充4」展示回执，三者共用同一个MITM hostname。
 # 下方额外域名是为了让 ⑨ 字节跳动通用广告接口规则（URL-REGEX）能够生效——
 # 这些规则依赖 URL 路径匹配，不解密对应域名规则不会触发。
-hostname = api*-normal-lq.toutiaoapi.com, *.snssdk.com, *.amemv.com, *.musical.com, *.tiktokv.com, *.pglstatp-toutiao.com, *.pstatp.com, *.pangolin-sdk-toutiao.com
+hostname = api*-normal-lq.toutiaoapi.com, *.snssdk.com, *.amemv.com, *.musical.ly, *.tiktokv.com, *.pglstatp-toutiao.com, *.pstatp.com, *.pangolin-sdk-toutiao.com

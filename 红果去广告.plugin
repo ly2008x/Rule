@@ -20,9 +20,6 @@ DOMAIN-SUFFIX,ad.pangolin.cn,REJECT
 DOMAIN-SUFFIX,zijieapi.com,REJECT
 DOMAIN-KEYWORD,tnc.snssdk,REJECT
 
-# PCDN（P2P上传）拦截：社区维护的通用列表，直接内联在插件里，随源更新
-RULE-SET,https://raw.githubusercontent.com/sooyaaabo/Loon/main/Rule/PCDN.lsr,REJECT
-# 抓包实测补充：红果这个 pcdn2 配置接口比较精确，双保险留着
 URL-REGEX,^https?://is\.snssdk\.com/service/settings/v2/\?.*caller_name=pcdn.*,REJECT
 
 # 红果内容直连（避免加载异常）

@@ -5,25 +5,28 @@
 #!icon = https://raw.githubusercontent.com/luestr/IconResource/main/App_icon/120px/PhoenixVideo.png
 
 [Rule]
-# 红果核心广告拦截（必加）
+;红果核心广告拦截（必加）
 DOMAIN-SUFFIX,hongguoapp.com,REJECT
 DOMAIN-SUFFIX,hongguosdk.com,REJECT
 DOMAIN-SUFFIX,pangolin-sdk-toutiao.com,REJECT
 DOMAIN-SUFFIX,pglstatp-toutiao.com,REJECT
-DOMAIN-KEYWORD,ad-union-sdk,REJECT
-DOMAIN-KEYWORD,be-pack,REJECT
-DOMAIN-KEYWORD,hongguo.ad,REJECT
+DOMAIN-KEYWORD,ad-union-sdk,REJECT-DICT
+DOMAIN-KEYWORD,be-pack,REJECT-DICT
+DOMAIN-KEYWORD,hongguo.ad,REJECT-DICT
 
-# 字节系广告兜底（红果隶属字节）
+;字节系广告兜底（红果隶属字节）
 DOMAIN-SUFFIX,ad.pangle.cn,REJECT
 DOMAIN-SUFFIX,ad.pangolin.cn,REJECT
-DOMAIN-SUFFIX,zijieapi.com,REJECT
-DOMAIN-KEYWORD,tnc.snssdk,REJECT
-URL-REGEX,^https?://is\.snssdk\.com/service/settings/v2/\?caller_name=pcdn,REJECT
+DOMAIN-SUFFIX,zijieapi.com,REJECT-DICT
+DOMAIN-KEYWORD,tnc.snssdk,REJECT-DICT
+URL-REGEX,^https?://is\.snssdk\.com/service/settings/v2/\?caller_name=pcdn,REJECT-DICT
 
-# 红果内容直连（避免加载异常）
+;红果内容直连（避免加载异常）
 DOMAIN-SUFFIX,hongguo.com,DIRECT
 DOMAIN-SUFFIX,hongguo.douyin.com,DIRECT
 DOMAIN-SUFFIX,byteimg.com,DIRECT
 DOMAIN-SUFFIX,pstatp.com,DIRECT
 DOMAIN-SUFFIX,qznovelvod.com,DIRECT
+
+[MITM]
+hostname = %APPEND% is.snssdk.com

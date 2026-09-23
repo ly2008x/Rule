@@ -1,0 +1,11 @@
+#!name = 黄果广告去除
+#!desc = 通过复写注入CSS隐藏黄果(huangguo.video/huangguoai.com)页面内的广告位，需开启MitM+复写
+#!system = iOS,iPadOS
+#!loon_version = 3.5.0(975)
+
+[Rewrite]
+response if ${url} ~= /^https:\/\/huangguo\.video/i && ${response.header['content-type']} ~= /html/i then response.body.replace(/(?i)<\/head>/, "<style>div.hg-exo-slot,div.hg-exo-slot-list,.hg-tile-slot-list{display:none!important}</style></head>")
+response if ${url} ~= /^https:\/\/huangguoai\.com/i && ${response.header['content-type']} ~= /html/i then response.body.replace(/(?i)<\/head>/, "<style>.hg-hero,.hg-ssp-slot,.hg-ssp-pause{display:none!important}</style></head>")
+
+[MITM]
+hostname = %APPEND% huangguo.video, huangguoai.com

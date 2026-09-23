@@ -21,6 +21,24 @@ DOMAIN-SUFFIX,zijieapi.com,REJECT-DICT
 DOMAIN-KEYWORD,tnc.snssdk,REJECT-DICT
 URL-REGEX,^https?://is\.snssdk\.com/service/settings/v2/\?caller_name=pcdn,REJECT-DICT
 
+;字节系埋点补充（i./i-lq.snssdk.com，广告投放前的设备/场景识别请求）
+DOMAIN,i.snssdk.com,REJECT
+DOMAIN,i-lq.snssdk.com,REJECT
+;mcs.snssdk.com 是推送消息通道，不是广告；拦了会收不到红果的推送通知，不想影响推送就删掉这行
+DOMAIN,mcs.snssdk.com,REJECT
+
+;穿山甲广告下发/配置接口（需下方MITM解密才生效）
+URL-REGEX,^https?://.+\.pangolin-sdk-toutiao\.com/api/ad/union/sdk/(get_ads|stats|settings)/,REJECT-DICT
+URL-REGEX,^https?://.+\.snssdk\.com/api/ad/,REJECT-DICT
+URL-REGEX,^https?://gurd\.snssdk\.com/src/server/v3/package,REJECT-DICT
+URL-REGEX,^https?://.+\.pglstatp-toutiao\.com/(obj|img)/(ad-app-package|ad|ad-pattern)/,REJECT-DICT
+
+;红果内嵌的B站广告素材（不影响bilivideo.com视频流本身）
+DOMAIN,cm.bilibili.com,REJECT
+
+;拼多多电商广告（红果广告联盟里出现过，没遇到过可删）
+DOMAIN,adim.pinduoduo.com,REJECT
+
 ;红果内容直连（避免加载异常）
 DOMAIN-SUFFIX,hongguo.com,DIRECT
 DOMAIN-SUFFIX,hongguo.douyin.com,DIRECT
@@ -29,4 +47,4 @@ DOMAIN-SUFFIX,pstatp.com,DIRECT
 DOMAIN-SUFFIX,qznovelvod.com,DIRECT
 
 [MITM]
-hostname = %APPEND% is.snssdk.com
+hostname = %APPEND% is.snssdk.com, gurd.snssdk.com, *.pangolin-sdk-toutiao.com, *.pglstatp-toutiao.com

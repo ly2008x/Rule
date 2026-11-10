@@ -1,71 +1,60 @@
 #!name=今日头条去广告
-#!desc=修复了匹配层级冲突，去除了断网黑图地雷，精准拦截广告及高危追踪。补充穿山甲/联盟、字节日志SDK、调度节点、西瓜搜索、图床等域名。已对开屏广告接口节点开启MITM解密。新增直播/直播带货全屏蔽（含douyincdn.com/bytegecko.com，若装有抖音会一并受影响）。新增开屏广告实际投放接口拦截（api/ad/splash/news_article）。
+#!desc=V7.2（修复 misc-lq/applog-lq 规则匹配不到 mon11-misc-lq；新增禁用 QUIC 测试规则）。V7.1（开屏规则主机名改为 [^/]+，修复 api3-normal-m-lq 这类带连字符节点匹配不到；新增 splash 路径兜底；MITM 放宽到 *.toutiaoapi.com）。V7：修复展示回执规则（DOMAIN-KEYWORD 不匹配路径，已改 URL-REGEX）；开屏规则放宽到所有 api*-normal-* 节点；新增预加载调度接口 /api/ad/v0/egg/ 与搜索品牌预加载；合并冗余的 pangolin/pglstatp 规则；MITM 范围收窄。
 #!author=Eric
 #!icon=https://raw.githubusercontent.com/luestr/IconResource/main/Website_icon/120px/ByteDanceAd.png
 [Rule]
 # ======================================================
-# 🔴 ① AI广告识别核心层（精准匹配，不被截胡）
+# 🧪 测试项：禁用 QUIC（UDP 443），强制回落 TCP/HTTPS 才能被 MITM 解密和 URL 规则拦截
+# 若 App 出现网络异常再注释掉本行。不确定 Loon 版本是否支持该写法，导入后看是否报解析错误
+# ======================================================
+AND,((PROTOCOL,UDP),(DEST-PORT,443)),REJECT
+# ======================================================
+# 🔴 ① 开屏广告（URL 规则必须放在最前，且依赖 [MITM] 解密 toutiaoapi.com）
+#   a. 库存接口        /api/ad/v1/splash/stock/
+#   b. 实际投放接口    /api/ad/splash/news_article/v15/   （v\d+ 兼容升级）
+#   c. 展示回执        /api/ad/v2/ack/splash/             （原 DOMAIN-KEYWORD 写法无效，已改）
+#   d. 预加载调度      /api/ad/v0/egg/                    （下发 launch_preload_interval，控制多久预加载一次开屏）
+#   e. 搜索品牌预加载  /api/ad/v0/search/brand/preload/
+# 节点用 [a-z]+ 通配（lq/xh/hl/...），避免负载均衡换节点后失效
+# ======================================================
+URL-REGEX,^https:\/\/[^\/]+\.toutiaoapi\.com\/api\/ad\/v\d+\/splash\/,REJECT
+URL-REGEX,^https:\/\/[^\/]+\.toutiaoapi\.com\/api\/ad\/splash\/[a-z_]+\/v\d+\/,REJECT
+URL-REGEX,^https:\/\/[^\/]+\.toutiaoapi\.com\/api\/ad\/v\d+\/ack\/splash\/,REJECT
+URL-REGEX,^https:\/\/[^\/]+\.toutiaoapi\.com\/api\/ad\/v\d+\/egg\/,REJECT
+URL-REGEX,^https:\/\/[^\/]+\.toutiaoapi\.com\/api\/ad\/v\d+\/search\/brand\/preload\/,REJECT
+# 兜底：toutiaoapi / snssdk 下任何路径含 splash 的请求（防止预加载走了未知路径或接口改名）
+URL-REGEX,^https:\/\/[^\/]+\.(toutiaoapi|snssdk)\.com\/[^?]*splash,REJECT
+# ======================================================
+# 🔴 ② 穿山甲 / 联盟 / 巨量广告域名
+#   DOMAIN-KEYWORD,pangolin 已覆盖所有含 pangolin 的域名
+#   （api-access.pangolin-sdk-toutiao*.com / log-api.pangolin-* / gromore.pangolin-* 等），无需再逐个列出
+#   DOMAIN-SUFFIX,pglstatp-toutiao.com 已覆盖其所有子域
 # ======================================================
 DOMAIN-KEYWORD,pangolin,REJECT
 DOMAIN-SUFFIX,gromore.cn,REJECT
+DOMAIN-SUFFIX,pglstatp-toutiao.com,REJECT
+DOMAIN-SUFFIX,sf16-static.i18n-pglstatp.com,REJECT
 DOMAIN-SUFFIX,ad.snssdk.com,REJECT
 DOMAIN-SUFFIX,ad.toutiao.com,REJECT
 DOMAIN-SUFFIX,dsp.toutiao.com,REJECT
 DOMAIN-SUFFIX,adshare.toutiao.com,REJECT
 DOMAIN-SUFFIX,ad.oceanengine.com,REJECT
-DOMAIN-SUFFIX,api-access.pangolin-sdk-toutiao.com,REJECT
-DOMAIN-SUFFIX,api-access.pangolin-sdk.com,REJECT
+DOMAIN-SUFFIX,analytics.oceanengine.com,REJECT
 DOMAIN-SUFFIX,lf-ad-ies.bytecdn.cn,REJECT
 DOMAIN-SUFFIX,lf-ad-union.byteimg.com,REJECT
 DOMAIN-SUFFIX,ad-sign.byteimg.com,REJECT
 DOMAIN-SUFFIX,ads.tiktokcdn.com,REJECT
-# ======================================================
-# 🔴 ①-补充 开屏广告库存接口（配合下方MITM解密后生效更彻底）
-# ======================================================
-URL-REGEX,^https:\/\/api[0-9]*-normal-lq\.toutiaoapi\.com\/api\/ad\/v1\/splash\/stock\/,REJECT
-# ======================================================
-# 🔴 ①-补充3 开屏广告实际投放接口（2026-09-17 抓包确认：该接口直接下发开屏广告数据，
-# 返回内容含 splash_ad_id / ad_id / skip_btn 等真实广告字段，未被①-补充的库存接口规则覆盖，
-# v\d+ 匹配任意版本号，避免头条升级接口版本后规则失效）
-# ======================================================
-URL-REGEX,^https:\/\/api[0-9]*-normal-lq\.toutiaoapi\.com\/api\/ad\/splash\/news_article\/v\d+\/,REJECT
-# ======================================================
-# 🔴 ①-补充4 开屏广告展示回执上报（2026-09-22 抓包新发现：/api/ad/v2/ack/splash/，
-# 展示后才触发，不影响广告是否显示，但会把本次曝光数据回传字节，顺手一并拦掉）
-# ======================================================
-DOMAIN-KEYWORD,ad/v2/ack/splash,REJECT
-# ======================================================
-# 🔴 ①-补充2 穿山甲/联盟相关（AWAvenue 规则集比对新增）
-# ======================================================
-DOMAIN-SUFFIX,gromore.pangolin-sdk-toutiao.com,REJECT
-DOMAIN-SUFFIX,pangolin-sdk-toutiao-b.com,REJECT
-DOMAIN-SUFFIX,api-access.pangolin-sdk-toutiao1.com,REJECT
-DOMAIN-SUFFIX,api-access.pangolin-sdk-toutiao2.com,REJECT
-DOMAIN-SUFFIX,api-access.pangolin-sdk-toutiao3.com,REJECT
-DOMAIN-SUFFIX,api-access.pangolin-sdk-toutiao4.com,REJECT
-DOMAIN-SUFFIX,api-access.pangolin-sdk-toutiao5.com,REJECT
-DOMAIN-SUFFIX,api-access.pangolin-sdk-toutiao-b.com,REJECT
-DOMAIN-SUFFIX,log-api.pangolin-sdk-toutiao.com,REJECT
-DOMAIN-SUFFIX,log-api.pangolin-sdk-toutiao-b.com,REJECT
-DOMAIN-SUFFIX,pglstatp-toutiao.com,REJECT
-DOMAIN-SUFFIX,lf3-ad-union-sdk.pglstatp-toutiao.com,REJECT
-DOMAIN-SUFFIX,lf6-ad-union-sdk.pglstatp-toutiao.com,REJECT
-DOMAIN-SUFFIX,sf3-fe-tos.pglstatp-toutiao.com,REJECT
-DOMAIN-SUFFIX,sf16-static.i18n-pglstatp.com,REJECT
 DOMAIN-SUFFIX,dm.toutiao.com,REJECT
 DOMAIN-SUFFIX,monsetting.toutiao.com,REJECT
-DOMAIN-SUFFIX,analytics.oceanengine.com,REJECT
 # ======================================================
-# 🟠 ② 伪内容广告识别层（剔除了会导致刷新报错的高危项）
+# 🟠 ③ 广告点击跳转 / 渠道归因（拦截后广告点了没反应）
 # ======================================================
+DOMAIN,clue.oceanengine.com,REJECT
 DOMAIN-SUFFIX,rp.snssdk.com,REJECT
 DOMAIN-SUFFIX,ichannel.snssdk.com,REJECT
 # ======================================================
-# 🟠 ②-补充 广告点击跳转接口（拦截后广告点了没反应，卡片本身仍会显示）
-# ======================================================
-DOMAIN,clue.oceanengine.com,REJECT
-# ======================================================
-# 🟡 ③ 行为AI建模层（轻量化拦截高危追踪）
+# 🟡 ④ 日志 / 埋点 / 追踪
+#   applog-lq / misc-lq 原为 DOMAIN-KEYWORD（带点的关键字，效率低且易误伤），改为 DOMAIN-SUFFIX
 # ======================================================
 DOMAIN-SUFFIX,log.snssdk.com,REJECT
 DOMAIN-SUFFIX,applog.zijieapi.com,REJECT
@@ -75,14 +64,9 @@ DOMAIN-SUFFIX,extlog.snssdk.com,REJECT
 DOMAIN-SUFFIX,toblog.snssdk.com,REJECT
 DOMAIN-SUFFIX,abtest-ch.snssdk.com,REJECT
 DOMAIN-SUFFIX,security.snssdk.com,REJECT
-# ======================================================
-# 🟡 ③-补充 本次抓包新发现的日志/监控上报（toutiaoapi.com根域）
-# ======================================================
+# 注意：mon11-misc-lq / log0-normal-lq 这类主机名前缀与 -lq 连在同一个标签里，DOMAIN-SUFFIX 匹配不到，必须用 KEYWORD
 DOMAIN-KEYWORD,applog-lq.toutiaoapi.com,REJECT
 DOMAIN-KEYWORD,misc-lq.toutiaoapi.com,REJECT
-# ======================================================
-# 🟡 ③-补充2 字节日志/追踪 SDK（AWAvenue 规则集比对新增）
-# ======================================================
 DOMAIN-SUFFIX,log.zijieapi.com,REJECT
 DOMAIN-SUFFIX,mssdk.zijieapi.com,REJECT
 DOMAIN-SUFFIX,tnc0-bjlgy.zijieapi.com,REJECT
@@ -91,41 +75,32 @@ DOMAIN-SUFFIX,klink.volceapplog.com,REJECT
 DOMAIN-SUFFIX,log.byteoversea.com,REJECT
 DOMAIN-SUFFIX,toblog.ctobsnssdk.com,REJECT
 DOMAIN-SUFFIX,success.ctobsnssdk.com,REJECT
-# ======================================================
-# 🟡 ③-补充3 多地域埋点日志节点（i-hl/i-bj/i-sz等，实际抓包中反复出现MITM握手失败——
-# 该类域名做了证书锁定，注定无法被解密，与其每次陪它走一遍必败的TLS握手，不如直接前置拒绝）
-# ======================================================
+# 多地域埋点节点（i-hl / i-bj / i-sz 等，证书锁定无法 MITM，直接前置拒绝）
 DOMAIN-WILDCARD,i-*.snssdk.com,REJECT
 # ======================================================
-# 🟢 ④ P2P & 直播流AI限制层（避免后台偷跑流量卡顿）
+# 🟢 ⑤ P2P / 备用调度节点
 # ======================================================
 DOMAIN-SUFFIX,xycdn.com,REJECT
 DOMAIN-SUFFIX,kuiniuca.com,REJECT
 DOMAIN-SUFFIX,edge-hls.net,REJECT
-# ======================================================
-# 🟢 ⑤ 调度系统轻封锁（阻断备用防劫持解析）
-# ======================================================
-DOMAIN-SUFFIX,tnc3-aliec1.toutiaoapi.com,REJECT
-DOMAIN-SUFFIX,tnc3-alisc1.bytedance.com,REJECT
 DOMAIN-SUFFIX,bsync.bytedance.com,REJECT
-# ======================================================
-# 🟢 ⑤-补充 其他备用调度节点（AWAvenue 规则集比对新增）
-# ======================================================
+DOMAIN-SUFFIX,tnc3-aliec1.toutiaoapi.com,REJECT
+DOMAIN-SUFFIX,tnc3-aliec2.toutiaoapi.com,REJECT
 DOMAIN-SUFFIX,tnc3-aliec2.bytedance.com,REJECT
 DOMAIN-SUFFIX,tnc3-aliec2.snssdk.com,REJECT
-DOMAIN-SUFFIX,tnc3-aliec2.toutiaoapi.com,REJECT
+DOMAIN-SUFFIX,tnc3-alisc1.bytedance.com,REJECT
 DOMAIN-SUFFIX,tnc3-alisc1.snssdk.com,REJECT
 DOMAIN-SUFFIX,tnc3-alisc1.toutiaoapi.com,REJECT
 DOMAIN-SUFFIX,tnc3-bjlgy.bytedance.com,REJECT
 DOMAIN-SUFFIX,tnc3-bjlgy.snssdk.com,REJECT
 DOMAIN-SUFFIX,tnc3-bjlgy.toutiaoapi.com,REJECT
 # ======================================================
-# 🟢 ⑥ 电商广告清理（防误触跳转）
+# 🟢 ⑥ 电商广告
 # ======================================================
 DOMAIN-SUFFIX,tunion-api.m.taobao.com,REJECT
 DOMAIN-SUFFIX,adredir.tmall.com,REJECT
 # ======================================================
-# 🔵 ⑦ 西瓜视频搜索/广告（如不使用头条内嵌西瓜视频搜索功能可保留；若使用后发现搜索异常可注释掉此段）
+# 🔵 ⑦ 西瓜视频搜索（用头条内嵌西瓜搜索的话，出现搜索异常就注释掉这段）
 # ======================================================
 DOMAIN-SUFFIX,search.ixigua.com,REJECT
 DOMAIN-SUFFIX,search3-search.ixigua.com,REJECT
@@ -133,22 +108,23 @@ DOMAIN-SUFFIX,search5-search.ixigua.com,REJECT
 DOMAIN-SUFFIX,search5-search-hl.ixigua.com,REJECT
 DOMAIN-SUFFIX,api5-normal-quic-lf.ixigua.com,REJECT
 # ======================================================
-# 🟣 ⑧ 图床资源（风险较低，但同域名下可能混有正文配图，加入后请重点观察 feed 图片是否缺失）
+# 🟣 ⑧ 图床（同域名下可能有正文配图，加入后观察 feed 图片是否缺失；缺图就注释掉）
 # ======================================================
 DOMAIN-SUFFIX,p3-tt.byteimg.com,REJECT
 # ======================================================
-# ⚫ ⑨ 字节跳动通用广告接口（来自奶思合集「字节跳动/番茄小说」板块，与头条共用 pangolin/snssdk/pglstatp-toutiao 广告 SDK）
-# 注意：这几条依赖 URL 路径匹配，必须配合下方 [MITM] 的 snssdk.com / pglstatp-toutiao.com / pangolin-sdk-toutiao.com / amemv.com / musical.ly 才会生效
+# ⚫ ⑨ 字节通用广告接口（URL 路径匹配，依赖 [MITM] 解密对应域名）
+#   pangolin-sdk-toutiao / pglstatp-toutiao 的 URL 规则已被上面的域名规则提前拒绝，
+#   故删除对应 URL-REGEX 与 MITM，仅保留 pstatp.com 的两条
 # ======================================================
 URL-REGEX,^https?:\/\/.+\.(amemv|musical\.ly|snssdk|tiktokv)\.com\/(api|motor)\/ad\/,REJECT
 URL-REGEX,^https?:\/\/.+\.snssdk\.com\/motor\/operation\/activity\/display\/config\/V2\/,REJECT
 URL-REGEX,^https?:\/\/[\w-]+\.amemv\.com\/aweme\/v\d\/ad\/,REJECT
 URL-REGEX,^https?:\/\/[\w-]+\.snssdk\.com\/.+_ad\/,REJECT
-URL-REGEX,^https?:\/\/.+\.pangolin-sdk-toutiao\.com\/api\/ad\/union\/sdk\/(get_ads|stats|settings)\/,REJECT
-URL-REGEX,^https?:\/\/.+\.(pglstatp-toutiao|pstatp)\.com\/(obj|img)\/(ad-app-package|ad)\/.+,REJECT
-URL-REGEX,^https?:\/\/.+\.(pglstatp-toutiao|pstatp)\.com\/(obj|img)\/web\.business\.image\/.+,REJECT
+URL-REGEX,^https?:\/\/.+\.pstatp\.com\/(obj|img)\/(ad-app-package|ad)\/.+,REJECT
+URL-REGEX,^https?:\/\/.+\.pstatp\.com\/(obj|img)\/web\.business\.image\/.+,REJECT
 # ======================================================
-# 🔶 ⑩ 直播屏蔽（本次抓包确认为头条内嵌抖音式直播间，全屏蔽后直播完全打不开，纯图文/短视频不受影响）
+# 🔶 ⑩ 直播屏蔽（全屏蔽后头条内直播完全打不开；装了抖音的话 douyincdn.com / bytegecko.com 会一并受影响）
+# 不需要屏蔽直播就把本段整体注释掉
 # ======================================================
 DOMAIN,webcast100-ws-open-lq.douyin.com,REJECT
 DOMAIN-SUFFIX,douyincdn.com,REJECT
@@ -157,24 +133,22 @@ DOMAIN,lf6-webcastcdn-tos.douyinstatic.com,REJECT
 DOMAIN,p3-webcast.douyinpic.com,REJECT
 DOMAIN,p3-webcast-sign.douyinpic.com,REJECT
 DOMAIN-SUFFIX,byteeffecttos.com,REJECT
-# ======================================================
-# 🔶 ⑩-补充 直播带货/放心购电商（连带屏蔽直播间购物车、商品浮窗）
-# ======================================================
+# 直播带货 / 放心购
 DOMAIN,lf3-ecom-toc.jinritemai.com,REJECT
 DOMAIN,lf6-cm.ecombdstatic.com,REJECT
 DOMAIN-SUFFIX,ecombdimg.com,REJECT
 DOMAIN-SUFFIX,ecombdapi.com,REJECT
 DOMAIN,life-service-open.scsjsd.com,REJECT
 DOMAIN,life-service-open.zijieapi.com,REJECT
-[Rewrite]
-# > 今日头条图片原图（来自奶思合集，省流量向，非强广告拦截）
-# hostname = p*.pstatp.com
-request if ${url} ~= /^https?:\/\/p\d\.pstatp\.com\/origin/ then reject(404)
-request if ${url} ~= /^https?:\/\/pb\d\.pstatp\.com\/origin/ then reject(404)
+
+# ======================================================
+# [Rewrite] 原有两条 `request if ${url} ~= ... then reject(404)` 不是 Loon 的 Rewrite 语法，
+# 在 Loon 里大概率解析失败或被忽略；且拒绝 /origin 原图可能导致图片加载失败（只省流量，与去广告无关）。
+# 已删除。如确实想要，可用 Loon 语法： ^https?:\/\/pb?\d\.pstatp\.com\/origin url reject
+# ======================================================
+
 [MITM]
-# 通配符覆盖所有编号的开屏广告接口节点（api1/api2/api3...-normal-lq），
-# 避免头条更换负载均衡节点后需要手动补充hostname。
-# 该域名下同时承载「①-补充」库存接口、「①-补充3」实际投放接口、「①-补充4」展示回执，三者共用同一个MITM hostname。
-# 下方额外域名是为了让 ⑨ 字节跳动通用广告接口规则（URL-REGEX）能够生效——
-# 这些规则依赖 URL 路径匹配，不解密对应域名规则不会触发。
-hostname = api*-normal-lq.toutiaoapi.com, *.snssdk.com, *.amemv.com, *.musical.ly, *.tiktokv.com, *.pglstatp-toutiao.com, *.pstatp.com, *.pangolin-sdk-toutiao.com
+# 开屏相关接口都在 toutiaoapi.com 的 api*-normal-* 节点；
+# snssdk.com / amemv.com / musical.ly / tiktokv.com / pstatp.com 用于第 ⑨ 段 URL 规则。
+# 已移除 *.pglstatp-toutiao.com 与 *.pangolin-sdk-toutiao.com（域名已被直接拒绝，无需解密）
+hostname = *.toutiaoapi.com, *.snssdk.com, *.amemv.com, *.musical.ly, *.tiktokv.com, *.pstatp.com

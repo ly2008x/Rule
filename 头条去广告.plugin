@@ -1,5 +1,5 @@
 #!name=今日头条去广告
-#!desc=V7.2（修复 misc-lq/applog-lq 规则匹配不到 mon11-misc-lq；新增禁用 QUIC 测试规则）。V7.1（开屏规则主机名改为 [^/]+，修复 api3-normal-m-lq 这类带连字符节点匹配不到；新增 splash 路径兜底；MITM 放宽到 *.toutiaoapi.com）。V7：修复展示回执规则（DOMAIN-KEYWORD 不匹配路径，已改 URL-REGEX）；开屏规则放宽到所有 api*-normal-* 节点；新增预加载调度接口 /api/ad/v0/egg/ 与搜索品牌预加载；合并冗余的 pangolin/pglstatp 规则；MITM 范围收窄。
+#!desc=V7.5 排查版：以 V7.2 为基础，关闭禁 QUIC 规则、MITM 头条范围收回到 api*-normal-*，排查红果通知打不开（旧版可用）。V7.2（修复 misc-lq/applog-lq 规则匹配不到 mon11-misc-lq；新增禁用 QUIC 测试规则）。V7.1（开屏规则主机名改为 [^/]+，修复 api3-normal-m-lq 这类带连字符节点匹配不到；新增 splash 路径兜底；MITM 放宽到 *.toutiaoapi.com）。V7：修复展示回执规则（DOMAIN-KEYWORD 不匹配路径，已改 URL-REGEX）；开屏规则放宽到所有 api*-normal-* 节点；新增预加载调度接口 /api/ad/v0/egg/ 与搜索品牌预加载；合并冗余的 pangolin/pglstatp 规则；MITM 范围收窄。
 #!author=Eric
 #!icon=https://raw.githubusercontent.com/luestr/IconResource/main/Website_icon/120px/ByteDanceAd.png
 [Rule]
@@ -7,7 +7,7 @@
 # 🧪 测试项：禁用 QUIC（UDP 443），强制回落 TCP/HTTPS 才能被 MITM 解密和 URL 规则拦截
 # 若 App 出现网络异常再注释掉本行。不确定 Loon 版本是否支持该写法，导入后看是否报解析错误
 # ======================================================
-AND,((PROTOCOL,UDP),(DEST-PORT,443)),REJECT
+# [V7.5 测试关闭] AND,((PROTOCOL,UDP),(DEST-PORT,443)),REJECT
 # ======================================================
 # 🔴 ① 开屏广告（URL 规则必须放在最前，且依赖 [MITM] 解密 toutiaoapi.com）
 #   a. 库存接口        /api/ad/v1/splash/stock/
@@ -151,4 +151,5 @@ DOMAIN,life-service-open.zijieapi.com,REJECT
 # 开屏相关接口都在 toutiaoapi.com 的 api*-normal-* 节点；
 # snssdk.com / amemv.com / musical.ly / tiktokv.com / pstatp.com 用于第 ⑨ 段 URL 规则。
 # 已移除 *.pglstatp-toutiao.com 与 *.pangolin-sdk-toutiao.com（域名已被直接拒绝，无需解密）
-hostname = *.toutiaoapi.com, *.snssdk.com, *.amemv.com, *.musical.ly, *.tiktokv.com, *.pstatp.com
+# [V7.5 原 V7.2] hostname = *.toutiaoapi.com, *.snssdk.com, *.amemv.com, *.musical.ly, *.tiktokv.com, *.pstatp.com
+hostname = api*-normal-*.toutiaoapi.com, *.snssdk.com, *.amemv.com, *.musical.ly, *.tiktokv.com, *.pstatp.com
